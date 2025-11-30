@@ -1,6 +1,13 @@
 "use client";
 
 import * as React from "react";
+import { useState } from "react";
+import Link from "next/link";
+import { Building2, LayoutDashboard, VectorSquare } from "lucide-react";
+import { AppUser } from "@/types/user";
+import { getInitials } from "@/components/getInitials";
+import { logout } from "@/lib/supabase/actions/logout";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   IconDatabase,
   IconFileWord,
@@ -15,7 +22,6 @@ import {
   IconNotification,
   IconUserCircle,
 } from "@tabler/icons-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,15 +44,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import Link from "next/link";
-import { Building2, LayoutDashboard, VectorSquare } from "lucide-react";
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "Dashboard",
@@ -64,6 +63,23 @@ const data = {
       icon: VectorSquare,
     },
   ],
+  documents: [
+    {
+      name: "Data Library",
+      url: "#",
+      icon: IconDatabase,
+    },
+    {
+      name: "Reports",
+      url: "#",
+      icon: IconReport,
+    },
+    {
+      name: "Word Assistant",
+      url: "#",
+      icon: IconFileWord,
+    },
+  ],
   navSecondary: [
     {
       title: "Pengaturan",
@@ -76,27 +92,22 @@ const data = {
       icon: IconHelp,
     },
   ],
-  documents: [
-    {
-      name: "?", // Data Library
-      url: "#",
-      icon: IconDatabase,
-    },
-    {
-      name: "?", // Reports
-      url: "#",
-      icon: IconReport,
-    },
-    {
-      name: "?", // Word Assistant
-      url: "#",
-      icon: IconFileWord,
-    },
-  ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  user,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & {
+  user: AppUser;
+}) {
   const { isMobile } = useSidebar();
+
+  const [loading, setLoading] = useState(false);
+
+  async function handleLogout() {
+    setLoading(true);
+    await logout();
+  }
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -165,7 +176,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      {/* WIP */}
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -176,15 +186,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:cursor-pointer"
                 >
                   <Avatar className="h-8 w-8 rounded-lg grayscale">
-                    <AvatarImage src={data.user.avatar} alt={data.user.name} />
-                    <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                    <AvatarImage
+                      src={user.profile.avatar_url ?? undefined}
+                      alt={user.profile.full_name || "User Avatar"}
+                    />
+                    <AvatarFallback className="rounded-lg">
+                      {getInitials(user.profile.full_name)}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium">
-                      {data.user.name}
+                      {user.profile.full_name}
                     </span>
                     <span className="text-muted-foreground truncate text-xs">
-                      {data.user.email}
+                      {user.user.email}
                     </span>
                   </div>
                   <IconDotsVertical className="ml-auto size-4" />
@@ -200,40 +215,51 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                     <Avatar className="h-8 w-8 rounded-lg">
                       <AvatarImage
-                        src={data.user.avatar}
-                        alt={data.user.name}
+                        src={user.profile.avatar_url ?? undefined}
+                        alt={user.profile.full_name || "User Avatar"}
                       />
-                      <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                      <AvatarFallback className="rounded-lg">
+                        {getInitials(user.profile.full_name)}
+                      </AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-medium">
-                        {data.user.name}
+                        {user.profile.full_name}
                       </span>
                       <span className="text-muted-foreground truncate text-xs">
-                        {data.user.email}
+                        {user.user.email}
                       </span>
                     </div>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <IconUserCircle />
-                    Account
+                  <DropdownMenuItem className="hover:cursor-pointer" asChild>
+                    <Link href="/akun">
+                      <IconUserCircle />
+                      Akun
+                    </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem disabled>
                     <IconCreditCard />
-                    Billing
+                    Penagihan
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem disabled>
                     <IconNotification />
-                    Notifications
+                    Pemberitahuan
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                  className="hover:cursor-pointer"
+                  disabled={loading}
+                  onClick={handleLogout}
+                  onSelect={(e) => e.preventDefault()}
+                >
                   <IconLogout />
-                  Log out
+                  <span className="ml-2">
+                    {loading ? "Loading..." : "Log out"}
+                  </span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

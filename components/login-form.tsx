@@ -1,8 +1,11 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import { login } from "@/lib/supabase/actions/login";
 import {
   Card,
   CardContent,
@@ -16,41 +19,21 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
-import { login } from "@/app/login/actions/login";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const [isPending, startTransition] = useTransition();
+  const [loading, setLoading] = useState(false);
 
-  function handleSubmit(formData: FormData) {
-    startTransition(() => {
-      toast.promise(
-        (async () => {
-          const res = await login(formData);
-
-          if (!res.success) {
-            throw new Error(res.message);
-          }
-
-          return res;
-        })(),
-        {
-          loading: "Sedang masuk...",
-          success: (data) => {
-            setTimeout(() => {
-              window.location.href = "/";
-            }, 600);
-
-            return data.message || "Login berhasil!";
-          },
-          error: (err) => err.message || "Terjadi kesalahan",
-        }
-      );
-    });
+  async function handleSubmit(formData: FormData) {
+    setLoading(true);
+    const res = await login(formData);
+    if (res?.success === false) {
+      setLoading(false);
+      toast.error(res.message);
+      return;
+    }
   }
 
   return (
@@ -63,7 +46,13 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form action={handleSubmit}>
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              await handleSubmit(formData);
+            }}
+          >
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -88,10 +77,10 @@ export function LoginForm({
               <Field>
                 <Button
                   type="submit"
-                  disabled={isPending}
+                  disabled={loading}
                   className="bg-linear-to-r from-[#2f318b] to-[#01612e] font-el-messiri cursor-pointer"
                 >
-                  {isPending ? "Loading..." : "Login"}
+                  {loading ? "Loading..." : "Login"}
                 </Button>
               </Field>
             </FieldGroup>
@@ -99,7 +88,9 @@ export function LoginForm({
         </CardContent>
       </Card>
       <FieldDescription className="px-6 text-center font-el-messiri">
-        Majelis Pustaka dan Informasi Pimpinan Cabang Muhammadiyah Cipondoh
+        Majelis Pustaka dan Informasi
+        <br />
+        Pimpinan Cabang Muhammadiyah Cipondoh
       </FieldDescription>
     </div>
   );

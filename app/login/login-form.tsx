@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { login } from "@/lib/supabase/actions/login";
+import { login } from "@/app/actions/auth-login";
 import {
   Card,
   CardContent,
@@ -60,7 +60,7 @@ export function LoginForm({
                   id="email"
                   name="email"
                   type="email"
-                  placeholder="admin@satu.muhammadiyahcipondoh.or.id"
+                  placeholder="admin@muhammadiyahcipondoh.or.id"
                   required
                 />
               </Field>
@@ -78,7 +78,7 @@ export function LoginForm({
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="bg-linear-to-r from-[#2f318b] to-[#01612e] font-el-messiri cursor-pointer"
+                  className="bg-linear-to-r from-[#2f318b] to-[#01612e] font-el-messiri cursor-pointer text-white"
                 >
                   {loading ? "Loading..." : "Login"}
                 </Button>

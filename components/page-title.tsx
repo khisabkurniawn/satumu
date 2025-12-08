@@ -14,6 +14,10 @@ export default function PageTitle() {
     "/akun": "Akun",
   };
 
+  if (pathname.startsWith("/organisasi/")) {
+    return "Organisasi";
+  }
+
   const title =
     map[pathname] ??
     pathname

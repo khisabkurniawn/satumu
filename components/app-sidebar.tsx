@@ -4,9 +4,7 @@ import * as React from "react";
 import { useState } from "react";
 import Link from "next/link";
 import { Building2, LayoutDashboard, VectorSquare } from "lucide-react";
-import { AppUser } from "@/types/user";
-import { getInitials } from "@/components/getInitials";
-import { logout } from "@/lib/supabase/actions/logout";
+import { logout } from "@/app/actions/auth-logout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   IconDatabase,
@@ -92,6 +90,17 @@ const data = {
       icon: IconHelp,
     },
   ],
+};
+
+type AppUser = {
+  user: {
+    email: string | null;
+  };
+  profile: {
+    full_name: string | null;
+    role: string | null;
+    avatar_url: string | null;
+  };
 };
 
 export function AppSidebar({
@@ -190,9 +199,7 @@ export function AppSidebar({
                       src={user.profile.avatar_url ?? undefined}
                       alt={user.profile.full_name || "User Avatar"}
                     />
-                    <AvatarFallback className="rounded-lg">
-                      {getInitials(user.profile.full_name)}
-                    </AvatarFallback>
+                    <AvatarFallback className="rounded-lg">S</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium">
@@ -218,9 +225,7 @@ export function AppSidebar({
                         src={user.profile.avatar_url ?? undefined}
                         alt={user.profile.full_name || "User Avatar"}
                       />
-                      <AvatarFallback className="rounded-lg">
-                        {getInitials(user.profile.full_name)}
-                      </AvatarFallback>
+                      <AvatarFallback className="rounded-lg">S</AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-medium">

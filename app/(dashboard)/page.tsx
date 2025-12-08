@@ -1,6 +1,6 @@
-import { ChartAreaInteractive } from "@/components/chart-area-interactive";
+import { ChartAreaInteractive } from "@/components/(dashboard)/chart-area-interactive";
 import { IconTrendingDown, IconTrendingUp } from "@tabler/icons-react";
-import { DataTable } from "@/components/data-table";
+import { DataTable } from "@/components/(dashboard)/data-table";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,

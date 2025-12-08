@@ -1,6 +1,7 @@
 "use server";
 
-import { getUserProfile } from "@/lib/supabase/actions/getUserProfile";
+import { cookies } from "next/headers";
+import { getUserProfile } from "@/app/actions/get-user-profile";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -13,10 +14,14 @@ export default async function Layout({
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = await cookies();
   const user = await getUserProfile();
+
+  const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
 
   return (
     <SidebarProvider
+      defaultOpen={defaultOpen}
       style={
         {
           "--sidebar-width": "calc(var(--spacing) * 72)",
@@ -39,7 +44,7 @@ export default async function Layout({
               orientation="vertical"
               className="mx-2 data-[orientation=vertical]:h-4"
             />
-            <h1 className="text-base font-medium">
+            <h1 className="font-medium font-el-messiri mt-0.5">
               <PageTitle />
             </h1>
             <div className="ml-auto flex items-center gap-2">
